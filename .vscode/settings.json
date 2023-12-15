@@ -40,7 +40,8 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "valarray": "cpp"
     },
     "cmake.configureOnOpen": false
 }
