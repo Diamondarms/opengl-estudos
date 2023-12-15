@@ -7,7 +7,7 @@
             "command": "C:\\MinGW\\bin\\g++.exe",  // Caminho para o g++.exe
             "args": [
                 "-g",
-                "${file}",
+                "${file}","${workspaceFolder}\\Utils\\ColorUtil.cpp",
                 "-o",
                 "${workspaceFolder}\\output\\${fileBasenameNoExtension}.exe",
                 "-lglut32","-lopengl32", "-lglu32"

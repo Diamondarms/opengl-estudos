@@ -2,7 +2,8 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include <gl/glut.h>
-#include <valarray>
+#include <cmath>
+#include "../Utils/ColorUtil.h"
 
 #define GL_PI 3.1415f
 
@@ -19,6 +20,9 @@ bool mouseButtonPressed = false;
 
 void RenderScene(void){
     GLfloat x,y,z,angle;
+    GLfloat sizes[2];
+    GLfloat step;
+    GLfloat curSize;
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -26,19 +30,32 @@ void RenderScene(void){
     glRotatef(xRot,1.0f,0.0f,0.0f);
     glRotatef(yRot,0.0f,1.0f,0.0f);
 
-    glBegin(GL_POINTS);
+    glGetFloatv(GL_POINT_SIZE_RANGE,sizes);
+    glGetFloatv(GL_POINT_SIZE_GRANULARITY,&step);
 
+    curSize = sizes[0];
+
+    float h,r,g,b;
     z = -50.0f;
+    h = 0.0f;
     for (angle = 0; angle <= (2.0f*GL_PI)*3.0f; angle += 0.1f)
     {
         x = 50.0f*sin(angle);
         y = 50.0f*cos(angle);
 
-        glVertex3f(x,y,z);
+        h = fabs(sin(angle));
+        HSLtoRGB(h,1.0f,0.5f,r,g,b);
+        glColor3f(r,g,b);
+
+        glPointSize(curSize);
+
+        glBegin(GL_POINTS);
+            glVertex3f(x,y,z);
+        glEnd();
+
         z+=0.5f;
+        curSize+=step;
     }
-        
-    glEnd();
 
     glPopMatrix();
 
@@ -46,9 +63,7 @@ void RenderScene(void){
 }
 
 void SetupRC(void) {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-    glColor3f(0.0f,1.0f,0.0f);
+    glClearColor(0.53f, 0.65f, 0.98f, 1.0f);
 }
 
 void ChangeSize(GLsizei w, GLsizei h){
@@ -73,7 +88,7 @@ void ChangeSize(GLsizei w, GLsizei h){
 
 void Keys(unsigned char key, int x, int y) {
     switch (key) {
-        case 27:  // Código ASCII para a tecla Esc
+        case 27:  // Esc
             exit(0); 
             break;
     }
@@ -98,11 +113,6 @@ void SpecialKeys(int key, int x, int y){
     if (xRot >= maxRotation) xRot -= maxRotation;
     if (yRot >= maxRotation) yRot -= maxRotation;
 
-    switch (key) {
-        case 27:  // Código ASCII para a tecla Esc
-            exit(0);  // Encerra o programa
-            break;
-    }
     glutPostRedisplay();
 }
 
