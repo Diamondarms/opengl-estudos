@@ -3,7 +3,6 @@
 #include <gl/glu.h>
 #include <gl/glut.h>
 #include <cmath>
-#include "../Utils/ColorUtil.h"
 
 #define GL_PI 3.1415f
 #define GL_2PI 6.383f
@@ -20,7 +19,10 @@ const float maxRotation = 360.0f;
 bool mouseButtonPressed = false;
 
 void RenderScene(void){
-    GLfloat x,y,z,angle, r;
+    GLfloat angle;
+    GLfloat axis[3] = {0.0f,0.0f,0.0f};
+    GLfloat colors1[3] = {0.97f,0.46f,0.61f};
+    GLfloat colors2[3] = {0.74f,0.46f,0.97f};
     GLfloat radius = 50.0f;
     GLfloat pieces = 64.0f;
 
@@ -29,29 +31,62 @@ void RenderScene(void){
     glPushMatrix();
     glRotatef(xRot,1.0f,0.0f,0.0f);
     glRotatef(yRot,0.0f,1.0f,0.0f);
-
-    //glEnable(GL_LINE_STIPPLE);
-
+    
     glLineWidth(10);
-    glLineStipple(3,0xffff);
 
-    glBegin(GL_LINES); glColor3f(0.46f,0.61f,0.97f);
-        glVertex3f(0.0f,0.0f,-80.0f);
-        glVertex3f(0.0f,0.0f,+80.0f);
-    glEnd();
-    glBegin(GL_LINES); glColor3f(0.61f,0.97f,0.46f);
-        glVertex3f(0.0f,-80.0f,0.0f);
-        glVertex3f(0.0f,+80.0f,0.0f);
-    glEnd();
-    glBegin(GL_LINES); glColor3f(0.97f,0.46f,0.61f);
-        glVertex3f(-80.0f,0.0f,0.0f);
-        glVertex3f(+80.0f,0.0f,0.0f);
-    glEnd();
+    //Axis x  y z
+    GLfloat lineD= 80.0f;
+    for (int i = 1; i <= 3; i++) {
+        glColor3f(colors1[(0 + i) % 3],colors1[(1 + i) % 3],colors1[(2 + i) % 3]);
+        axis[(0 + i) % 3] = axis[(2 + i) % 3]= 0.0f;
+        glBegin(GL_LINES);
+            axis[(1 + i) % 3] = lineD;
+            glVertex3f(axis[0],axis[1],axis[2]);
+            axis[(1 + i) % 3] = -lineD;
+            glVertex3f(axis[0],axis[1],axis[2]);
+        glEnd();
+    }
 
     glLineWidth(5);
-    glLineStipple(3,0x5555);
-    
-    glColor3f(0.97f,0.46f,0.61f);
+
+    //Circles
+    for (int i = 1; i <= 3; i++) {
+        glColor3f(colors1[(0 + i) % 3],colors1[(1 + i) % 3],colors1[(2 + i) % 3]);
+        axis[(0 + i) % 3] = 0.0f;
+        glBegin(GL_LINE_LOOP);
+            for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces) {
+                axis[(1 + i) % 3] = radius*sin(angle);
+                axis[(2 + i) % 3] = radius*cos(angle);
+                
+                glVertex3f(axis[0],axis[1],axis[2]);
+            }
+        glEnd();
+    }
+
+    radius = radius/2;
+    glLineWidth(3);
+    //Circles with 45°/135° inclination
+    for (int i = 1; i <= 3; i++) {
+        glColor3f(colors2[(0 + i) % 3],colors2[(1 + i) % 3],colors2[(2 + i) % 3]);
+        glBegin(GL_LINE_LOOP);
+            for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces) {
+                axis[(0 + i) % 3] = radius*(GL_PI/4)*sin(angle);
+                axis[(1 + i) % 3] = radius*cos(angle);
+                axis[(2 + i) % 3] = axis[(0 + i) % 3];
+
+                glVertex3f(axis[0],axis[1],axis[2]);
+            }
+            for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces) {
+                axis[(2 + i) % 3] = radius*(GL_PI/4)*sin(angle);
+                axis[(1 + i) % 3] = radius*cos(angle);
+                axis[(0 + i) % 3] = -axis[(2 + i) % 3];
+
+                glVertex3f(axis[0],axis[1],axis[2]);
+            }
+        glEnd();
+    }
+    /*  Equivalente
+
     z = 0.0f;
     glBegin(GL_LINE_LOOP); // Vermelho
         for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
@@ -63,119 +98,24 @@ void RenderScene(void){
         }
     glEnd();
     
-    glColor3f(0.61f,0.97f,0.46f);
-    x = 0.0f;
-    glBegin(GL_LINE_LOOP); // Verde
-        for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
-        {
-            z = radius*sin(angle);
-            y = radius*cos(angle);
-            
-            glVertex3f(x,y,z);
-        }
-    glEnd();
-    glColor3f(0.46f,0.61f,0.97f);
-    y = 0.0f;
-    glBegin(GL_LINE_LOOP); // Azul
-        for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
-        {
-            z = radius*sin(angle);
-            x = radius*cos(angle);
-            
-            glVertex3f(x,y,z);
-        }
-    glEnd();
-
-    radius = 25.0f;
-    glLineWidth(3);
-    glLineStipple(1,0x087f);
-
-    glColor3f(0.74f,0.46f,0.97f);
     glBegin(GL_LINE_LOOP); // Roxo
         for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
         {
             x = radius*(GL_PI/4)*sin(angle);
             y = radius*cos(angle);
-            z = radius*(GL_PI/4)*sin(angle);
+            z = x;
             
             glVertex3f(x,y,z);
         }
         for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
         {
-            x = -radius*(GL_PI/4)*sin(angle);
+            z = radius*(GL_PI/4)*sin(angle);
             y = radius*cos(angle);
-            z = radius*(GL_PI/4)*sin(angle);
-            
-            glVertex3f(x,y,z);
-        }
-    glEnd();
-
-    glColor3f(0.97f,0.74f,0.46f);
-    glBegin(GL_LINE_LOOP); // Laranja
-        for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
-        {
-            z = radius*(GL_PI/4)*sin(angle);
-            x = radius*cos(angle);
-            y = radius*(GL_PI/4)*sin(angle);
-            
-            glVertex3f(x,y,z);
-        }
-        for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
-        {
-            z = -radius*(GL_PI/4)*sin(angle);
-            x = radius*cos(angle);
-            y = radius*(GL_PI/4)*sin(angle);
-            
-            glVertex3f(x,y,z);
-        }
-    glEnd();
-
-    glColor3f(0.46f,0.97f,0.74f);
-    glBegin(GL_LINE_LOOP); // Verde
-        for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
-        {
-            y = radius*(GL_PI/4)*sin(angle);
-            z = radius*cos(angle);
-            x = radius*(GL_PI/4)*sin(angle);
-            
-            glVertex3f(x,y,z);
-        }
-        for (angle = 0; angle <= GL_2PI; angle += GL_2PI / pieces)
-        {
-            y = -radius*(GL_PI/4)*sin(angle);
-            z = radius*cos(angle);
-            x = radius*(GL_PI/4)*sin(angle);
-            
-            glVertex3f(x,y,z);
-        }
-    glEnd();
-
-    /*glColor3f(0.46f,0.61f,0.97f);
-    glLineStipple(3,0x5555);
-
-    y = radius*cos((GL_2PI / pieces)*((pieces/4) + 1));
-    glBegin(GL_LINE_LOOP); // Azul
-        r = radius*sin((GL_2PI / pieces)*((pieces/4) + 1));
-        for (angle = 0; angle <= GL_2PI; angle += (GL_2PI / pieces) * 2)
-        {
-            z = r*sin(angle);
-            x = r*cos(angle);
-            
-            glVertex3f(x,y,z);
-        }
-    glEnd();
-
-    y = radius*cos((GL_2PI / pieces)*((pieces/4) - 1));
-    glBegin(GL_LINE_LOOP); // Azul
-        for (angle = 0; angle <= GL_2PI; angle += (GL_2PI / pieces) * 2)
-        {
-            z = r*sin(angle);
-            x = r*cos(angle);
+            x = -z;
             
             glVertex3f(x,y,z);
         }
     glEnd();*/
-
 
     glPopMatrix();
 
@@ -183,7 +123,6 @@ void RenderScene(void){
 }
 
 void SetupRC(void) {
-    //glClearColor(0.53f, 0.65f, 0.98f, 1.0f);
     glClearColor(0.73f, 0.75f, 0.88f, 1.0f);
 }
 
