@@ -4,7 +4,7 @@
 #include <gl/glut.h>
 
 GLfloat x1 = 0.0f;
-GLfloat y1 = 0.0f;
+GLfloat t1 = 0.0f;
 GLfloat rsize = 26.0f;
 
 GLfloat xstep = 2.0f;
@@ -16,7 +16,7 @@ GLfloat windowHeight;
 void RenderScene(void){
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0f,0.0f,0.0f);
-    glRectf(x1, y1, x1+rsize, y1-rsize);
+    glRectf(x1, t1, x1+rsize, t1-rsize);
     glutSwapBuffers();
 }
 
@@ -29,21 +29,21 @@ void TimerFunction(int value){
         xstep = -xstep;
     }
 
-    if(y1 > windowHeight || y1 < -windowHeight+rsize)
+    if(t1 > windowHeight || t1 < -windowHeight+rsize)
         ystep = -ystep;
 
     x1 += xstep;
-    y1 += ystep;
+    t1 += ystep;
 
     if(x1 > (windowWidth-rsize+xstep))
         x1 = windowWidth-rsize-1;
     else if(x1 < -(windowWidth + xstep))
     x1 = -windowWidth-1;
 
-    if(y1 > (windowHeight+ystep))
-        y1 = windowHeight-1;
-    else if(y1 < -(windowHeight-rsize + ystep))
-    y1 = -windowHeight+rsize-1;
+    if(t1 > (windowHeight+ystep))
+        t1 = windowHeight-1;
+    else if(t1 < -(windowHeight-rsize + ystep))
+    t1 = -windowHeight+rsize-1;
 
     glutPostRedisplay();
     glutTimerFunc(3,TimerFunction,1);

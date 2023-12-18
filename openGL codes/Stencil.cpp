@@ -5,8 +5,8 @@
 #include <cmath>
 
 GLfloat x1 = 0.0f;
-GLfloat rsize = 26.0f;
 GLfloat t1 = 0.0f;
+GLfloat rsize = 26.0f;
 
 GLfloat xstep = 2.0f;
 GLfloat ystep = 2.0f;
@@ -15,36 +15,26 @@ GLfloat windowWidth;
 GLfloat windowHeight;
 
 void RenderScene(void){
-    static GLdouble dRadius = 0.1;
-    static GLdouble dAngle = 0.0;
+    GLdouble dRadius = 0.1;
+    GLdouble dAngle;
 
-    glDrawBuffer(GL_FRONT);
+    glClearColor(0.53f, 0.65f, 0.98f, 1.0f);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glScissor(200,150,500,500);
-    glEnable(GL_SCISSOR_TEST);
+    glClearStencil(0.0f);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
 
     glStencilFunc(GL_NEVER,0x0,0x0);
     glStencilOp(GL_INCR,GL_INCR,GL_INCR);
 
-    if (dAngle == 0.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glDisable(GL_SCISSOR_TEST);
-
-    glBegin(GL_POINTS);
-        glVertex2d(dRadius * cos(dAngle), dRadius*sin(dAngle));
-    glEnd();
-    glBegin(GL_POINTS);
-        glVertex2d(-dRadius * cos(dAngle), -dRadius*sin(dAngle));
+    glColor3i(1,1,1);
+    glBegin(GL_LINE_STRIP);
+        for(dAngle = 0; dAngle < 400.0; dAngle += 0.1){
+            glVertex2d(dRadius * cos(dAngle), dRadius*sin(dAngle));
+            dRadius *= 1.002;
+        }
     glEnd();
 
-    dRadius *= 1.01;
-    dAngle += 0.1;
-
-    if(dAngle > 300.0){
-        dRadius = 0.1;
-        dAngle = 0.0;
-    }
 
     glStencilFunc(GL_NOTEQUAL,0x1,0x1);
     glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
@@ -52,10 +42,7 @@ void RenderScene(void){
     glColor3f(1.0f,0.0f,0.0f);
     glRectf(x1, t1, x1+rsize, t1-rsize);
 
-
-    glFlush();
-
-    glutPostRedisplay();
+    glutSwapBuffers();
 }
 
 void TimerFunction(int value){
@@ -84,8 +71,7 @@ void TimerFunction(int value){
 }
 
 void SetupRC(void) {
-    glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
-    glEnable(GL_SCISSOR_TEST);
+    glClearColor(0.53f, 0.65f, 0.98f, 1.0f);
     glEnable(GL_STENCIL_TEST);
 }
 
@@ -115,7 +101,7 @@ void ChangeSize(GLsizei w, GLsizei h){
 int main(int argc, char* argv[]){
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_STENCIL);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_STENCIL);
     glutInitWindowSize(800,600);
     glutCreateWindow("Banana");
     glutDisplayFunc(RenderScene);
